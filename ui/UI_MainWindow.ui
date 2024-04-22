@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>838</width>
+    <height>537</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -38,15 +38,15 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="generatorTab">
        <attribute name="title">
-        <string>Tab 1</string>
+        <string>Генератор Датасета</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
+        <item row="0" column="0" rowspan="2">
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <widget class="QListView" name="listView">
+           <widget class="QListView" name="areaListView">
             <property name="maximumSize">
              <size>
               <width>500</width>
@@ -56,7 +56,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="areaFileDialogButton">
             <property name="maximumSize">
              <size>
               <width>500</width>
@@ -64,12 +64,12 @@
              </size>
             </property>
             <property name="text">
-             <string>PushButton</string>
+             <string>Выбрать папку с исходными изображениями</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QListView" name="listView_2">
+           <widget class="QListView" name="objectListView">
             <property name="maximumSize">
              <size>
               <width>500</width>
@@ -79,7 +79,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="objectFileDialogButton">
             <property name="maximumSize">
              <size>
               <width>500</width>
@@ -87,14 +87,34 @@
              </size>
             </property>
             <property name="text">
-             <string>PushButton</string>
+             <string>Выбрать папку с изображениями объектов</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="dataGenerateButton">
+            <property name="text">
+             <string>Собрать датасет</string>
             </property>
            </widget>
           </item>
          </layout>
         </item>
         <item row="0" column="1">
-         <widget class="QGraphicsView" name="graphicsView">
+         <widget class="QGraphicsView" name="areaGraphicsView">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -109,16 +129,34 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="saveOverlayButton">
+            <property name="text">
+             <string>Сохранить разметку</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="deleteOverlayButton">
+            <property name="text">
+             <string>Удалить разметку</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Tab 2</string>
+        <string>Обучение модели</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
-        <string>Страница</string>
+        <string>Тестирование модели</string>
        </attribute>
       </widget>
      </widget>
@@ -130,7 +168,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>838</width>
      <height>22</height>
     </rect>
    </property>
