@@ -1,23 +1,18 @@
 import os
-import subprocess
-
 from PyQt5 import QtWidgets, QtGui, QtCore
-import sys
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QImage, QPen
 from PyQt5.QtCore import Qt, QPoint, QStringListModel
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsPixmapItem, QFileDialog, QMessageBox
 
 from ProgressDialog import ProgressDialog
-from imageUtils import getCoordinats, ImageProcessingThread
-
+from ImageUtils import ImageProcessingThread
 from ui.UI_MainWindow import Ui_MainWindow
 
 
-class MyWindow(QtWidgets.QMainWindow):
-    def __init__(self):
+class DataGenerateTab(QtWidgets.QWidget):
+    def __init__(self, main_window_ui: Ui_MainWindow):
         super().__init__()
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        self.ui = main_window_ui
 
         self.overlay = QPixmap()
         self.overlayItem = QGraphicsPixmapItem(self.overlay)
@@ -134,25 +129,20 @@ class MyWindow(QtWidgets.QMainWindow):
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
-            thread = ImageProcessingThread()
-            dialog = ProgressDialog()
+            if  self.areaFolderPath and self.objectFolderPath:
+                thread = ImageProcessingThread(self.areaFolderPath,self.objectFolderPath,self.overlaysFolderPath)
+                dialog = ProgressDialog()
 
-            thread.updateProgress.connect(dialog.updateProgress)
-            thread.start()
-            dialog.exec_()
-            thread.stop()
+                thread.updateProgress.connect(dialog.updateProgress)
+                thread.start()
+                dialog.exec_()
+                thread.stop()
 
-            if(thread.status):
-                QMessageBox.information(self, 'Подтверждение', 'Датасет готов')
+                if (thread.status):
+                    QMessageBox.information(self, 'Подтверждение', 'Датасет готов')
+                else:
+                    QMessageBox.warning(self, 'Ошибка', 'Датасет не собрался')
             else:
-                QMessageBox.warning(self, 'Ошибка', 'Датасет не собрался')
-
-
+                QMessageBox.warning(self, 'Ошибка', 'Вы не указали папки с изображениями')
 
         self.setEnabled(True)
-
-
-app = QtWidgets.QApplication([])
-application = MyWindow()
-application.show()
-sys.exit(app.exec())
