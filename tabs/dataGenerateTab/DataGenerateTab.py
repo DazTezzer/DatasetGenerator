@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QPoint, QStringListModel
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsPixmapItem, QFileDialog, QMessageBox
 
 from ProgressDialog import ProgressDialog
-from ImageUtils import ImageProcessingThread
+from tabs.dataGenerateTab.ImageUtils import ImageProcessingThread
 from ui.UI_MainWindow import Ui_MainWindow
 
 
@@ -20,7 +20,7 @@ class DataGenerateTab(QtWidgets.QWidget):
 
         self.areaFolderPath = None
         self.objectFolderPath = None
-        self.overlaysFolderPath = os.path.join(os.getcwd(), "overlays")
+        self.overlaysFolderPath = os.path.join(os.getcwd(), "../../overlays")
 
 
         self.scene = QGraphicsScene()

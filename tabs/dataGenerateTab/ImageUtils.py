@@ -1,6 +1,8 @@
 import os
 import shutil
+import traceback
 
+import pandas as pd
 from PIL import Image, ImageDraw
 import numpy as np
 import random
@@ -44,7 +46,8 @@ class ImageProcessingThread(QThread):
                                 overlay = QPixmap(overlayPath).toImage()
                                 getCoordinats(overlay, areaFilePath, objectFilePath,newFolderPath)
                             else:
-                                print("File '1_overlay.png' not found in 'overlays' folder.")
+                                overlay = QPixmap(areaFilePath).toImage()
+                                getCoordinats(overlay, areaFilePath, objectFilePath, newFolderPath)
 
                     print("Processing image:", areaFilePath)
                     processedFiles += 1
@@ -53,9 +56,7 @@ class ImageProcessingThread(QThread):
                     self.updateProgress.emit(progress)
         except Exception as e:
             shutil.rmtree(newFolderPath)
-            print(e)
-
-
+            traceback.print_exc()
         self.status = True
 
     def stop(self):
@@ -118,10 +119,20 @@ def insertImage(mainImagePath, insertImagePath, x, y,FolderPath):
     resultImagesPath = os.path.join(resultImagesFolderPath,resultFileName+".png")
     resultImage.save(resultImagesPath, format="PNG")
     resultCoordinatsPath = os.path.join(resultCoordinatsFolderPath,resultFileName+".csv")
-    coordinates = [(x,y)]
-    with open(resultCoordinatsPath, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(coordinates)
+    x_top_left = x
+    y_top_left = y
+    insertImageWidth, insertImageHeight = insertImage.size
+    x_bottom_right = x_top_left + insertImageWidth
+    y_bottom_right = y_top_left + insertImageHeight
+    data = {
+        'filename': [resultFileName+".png"],
+        'x_min': [x_top_left],
+        'y_min': [y_top_left],
+        'x_max': [x_bottom_right],
+        'y_max': [y_bottom_right]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(resultCoordinatsPath, index=False)
 
     print(f"Координаты вставленного изображения: (X: {x}, Y: {y})")
     print(f"Путь к результирующему изображению: {resultImagesPath}")
