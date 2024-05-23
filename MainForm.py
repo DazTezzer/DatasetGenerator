@@ -6,6 +6,7 @@ import sys
 from tabs.dataGenerateTab.DataGenerateTab import DataGenerateTab
 from tabs.GlobalExceptionHandler import GlobalExceptionHandler
 from tabs.modelTrainingTab.ModelTrainingTab import ModelTrainingTab
+from tabs.modelTestingTab.ModelTestingTab import ModelTestingTab
 from ui.UI_MainWindow import Ui_MainWindow
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['TF_USE_CUDNN'] = '1'
@@ -16,6 +17,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.ui.generatorTab = DataGenerateTab(self.ui)
         self.ui.trainingTab = ModelTrainingTab(self.ui)
+        self.ui.testingTab = ModelTestingTab(self.ui)
         self.ui.globalExceptionHandlerPlainTextEdit.setReadOnly(True)
 
 

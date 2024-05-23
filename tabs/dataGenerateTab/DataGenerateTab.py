@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsPixmapItem, 
 from ProgressDialog import ProgressDialog
 from tabs.dataGenerateTab.ImageUtils import ImageProcessingThread
 from ui.UI_MainWindow import Ui_MainWindow
-
+from PIL import Image
 
 class DataGenerateTab(QtWidgets.QWidget):
     def __init__(self, main_window_ui: Ui_MainWindow):
@@ -20,7 +20,7 @@ class DataGenerateTab(QtWidgets.QWidget):
 
         self.areaFolderPath = None
         self.objectFolderPath = None
-        self.overlaysFolderPath = os.path.join(os.getcwd(), "../../overlays")
+        self.overlaysFolderPath = os.path.join(os.getcwd(), "overlays")
 
 
         self.scene = QGraphicsScene()
@@ -78,9 +78,43 @@ class DataGenerateTab(QtWidgets.QWidget):
         options = QFileDialog.Options()
         FolderPath = QFileDialog.getExistingDirectory(self, "Выберите папку", options=options)
         if FolderPath:
-            images = [f for f in os.listdir(FolderPath) if f.lower().endswith(('.png', '.jpeg', '.jpg'))]
-            ListModel.setStringList(images)
+            if (ListModel == self.areaListModel):
+                if not (self.checkImageSize(ListModel, FolderPath)):
+                    return ""
+                else:
+                    images = [f for f in os.listdir(FolderPath) if f.lower().endswith(('.png', '.jpeg', '.jpg'))]
+                    ListModel.setStringList(images)
+            else:
+                images = [f for f in os.listdir(FolderPath) if f.lower().endswith(('.png', '.jpeg', '.jpg'))]
+                ListModel.setStringList(images)
         return FolderPath
+
+    def checkImageSize(self,ListModel,FolderPath):
+        if (ListModel == self.areaListModel):
+            images = [f for f in os.listdir(FolderPath) if f.lower().endswith(('.png', '.jpeg', '.jpg'))]
+            for image in images:
+                imagePath = os.path.join(FolderPath,image)
+                img = Image.open(imagePath)
+                width, height = img.size
+                if (width != 2048 and height != 2048):
+                    reply = QMessageBox.warning(self, 'Ошибка',
+                                                 'В папке присутствуют изображения, не подходящие по размеру! \nПопробовать преобразовать изображения ?',
+                                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                    if reply == QMessageBox.Yes:
+                        self.resizeImages(images,FolderPath)
+                        return 1
+                    else:
+                        return 0
+        return 1
+    def resizeImages(self,images,FolderPath):
+        for image in images:
+            imagePath = os.path.join(FolderPath, image)
+            img = Image.open(imagePath)
+            resizedImg = img.resize((2048, 2048))
+            resizedImg.save(imagePath)
+
+
+
     def showImage(self, index):
         fileName = self.ui.areaListView.currentIndex().data()
         self.currentImageName = fileName
@@ -129,8 +163,8 @@ class DataGenerateTab(QtWidgets.QWidget):
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
-            if  self.areaFolderPath and self.objectFolderPath:
-                thread = ImageProcessingThread(self.areaFolderPath,self.objectFolderPath,self.overlaysFolderPath)
+            if self.areaFolderPath and self.objectFolderPath:
+                thread = ImageProcessingThread(self.areaFolderPath, self.objectFolderPath, self.overlaysFolderPath)
                 dialog = ProgressDialog()
 
                 thread.updateProgress.connect(dialog.updateProgress)

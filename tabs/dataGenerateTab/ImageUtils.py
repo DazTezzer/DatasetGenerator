@@ -12,6 +12,9 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap
 import csv
 
+from PyQt5.QtWidgets import QMessageBox
+
+
 class ImageProcessingThread(QThread):
     updateProgress = pyqtSignal(int)
 
@@ -24,10 +27,12 @@ class ImageProcessingThread(QThread):
         self.overlaysFolderPath = overlaysFolderPath
 
     def run(self):
+        DatesetsFolder = os.path.join(os.getcwd(),"Datasets")
+        os.makedirs(DatesetsFolder, exist_ok=True)
         today = datetime.today()
         dateString = today.strftime("%d_%m_%Y_%H_%M_%S")
         newFolderName = f"Dataset_{dateString}"
-        newFolderPath = os.path.join(os.getcwd(), newFolderName)
+        newFolderPath = os.path.join(DatesetsFolder, newFolderName)
         os.makedirs(newFolderPath, exist_ok=True)
         try:
             areaFiles = os.listdir(self.areaFolderPath)
@@ -53,10 +58,12 @@ class ImageProcessingThread(QThread):
                     processedFiles += 1
                     progress = int((processedFiles / totalFiles) * 100)
                     print("Progress:", progress)
+                    self.status = True
                     self.updateProgress.emit(progress)
         except Exception as e:
             shutil.rmtree(newFolderPath)
             traceback.print_exc()
+            self.status = False
         self.status = True
 
     def stop(self):
@@ -109,30 +116,31 @@ def insertImage(mainImagePath, insertImagePath, x, y,FolderPath):
     resultImage.paste(insertImage, (x, y), mask=insertImage)
 
     insert_box = (x, y, x + insertImage.width, y + insertImage.height)
-    resultImage = drawRectangle(resultImage, insert_box)
+    #resultImage = drawRectangle(resultImage, insert_box)
 
     resultFileName = os.path.basename(mainImagePath.split('.')[0])+"_"+os.path.basename(insertImagePath.split('.')[0])
-    resultImagesFolderPath = os.path.join(FolderPath, "resultImages")
-    resultCoordinatsFolderPath = os.path.join(FolderPath, "resultCoordinats")
+    resultImagesFolderPath = os.path.join(FolderPath, "images")
     os.makedirs(resultImagesFolderPath, exist_ok=True)
-    os.makedirs(resultCoordinatsFolderPath, exist_ok=True)
     resultImagesPath = os.path.join(resultImagesFolderPath,resultFileName+".png")
     resultImage.save(resultImagesPath, format="PNG")
-    resultCoordinatsPath = os.path.join(resultCoordinatsFolderPath,resultFileName+".csv")
+    resultCoordinatsPath = os.path.join(FolderPath,"annotations.csv")
     x_top_left = x
     y_top_left = y
     insertImageWidth, insertImageHeight = insertImage.size
     x_bottom_right = x_top_left + insertImageWidth
     y_bottom_right = y_top_left + insertImageHeight
     data = {
-        'filename': [resultFileName+".png"],
-        'x_min': [x_top_left],
-        'y_min': [y_top_left],
-        'x_max': [x_bottom_right],
-        'y_max': [y_bottom_right]
+        'image_id': [resultFileName+".png"],
+        'geometry': f"[({x_top_left},{y_bottom_right}),({x_bottom_right},{y_bottom_right}),({x_bottom_right},{y_top_left}),({x_top_left},{y_top_left})]",
+        'class': ["Car"]
     }
-    df = pd.DataFrame(data)
-    df.to_csv(resultCoordinatsPath, index=False)
+    if os.path.isfile(resultCoordinatsPath):
+        with open(resultCoordinatsPath, 'a') as f:
+            df = pd.DataFrame(data)
+            f.write(df.to_csv(header=False, index=False).strip() + '\n')
+    else:
+        df = pd.DataFrame(data)
+        df.to_csv(resultCoordinatsPath, index=False)
 
     print(f"Координаты вставленного изображения: (X: {x}, Y: {y})")
     print(f"Путь к результирующему изображению: {resultImagesPath}")
